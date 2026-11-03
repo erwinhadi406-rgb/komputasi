@@ -1,0 +1,1195 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Robo Komputasi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Figtree:wght@500;600;700;800&display=swap">
+<style>
+/* Konsep: dunia langit cerah, panel kaca, ubin pasir seperti pijakan Robo. Satu tema yang konsisten (game). */
+:root{
+  --ink:#12264a; --ink2:#4a6286; --sky1:#a9e0f5; --sky2:#e3f6fc; --sky3:#f1faf4;
+  --orange:#ff8a1f; --orange2:#e86f00; --cyan:#27d3ff; --blue:#1796d4;
+  --mint:#a5e39a; --mint2:#74c76f; --sand:#f7e8c4; --sand2:#efdcae; --sand3:#d9bd82;
+  --glass:rgba(255,255,255,.8); --line:rgba(18,38,74,.14);
+  --good:#1fae63; --bad:#e63e68; --yel:#ffc933;
+  --w1:#ff8a1f; --w2:#1796d4; --w3:#7b6cf0; --w4:#e63e68;
+  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --shadow:0 1px 0 rgba(255,255,255,.95) inset,0 14px 34px -16px rgba(18,38,74,.45),0 2px 6px rgba(18,38,74,.08);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-tap-highlight-color:transparent}
+body{background-color:var(--sky2);background-image:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 55%,var(--sky3) 100%);background-attachment:fixed;color:var(--ink);font:600 16px/1.45 var(--body);min-height:100%}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;touch-action:manipulation}
+button:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+button[disabled]{cursor:not-allowed}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.05;text-wrap:balance}
+p{margin:0}
+svg{display:block}
+.hidden-defs{position:absolute;width:0;height:0;overflow:hidden}
+
+/* langit */
+.sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.sky i{position:absolute;height:34px;border-radius:99px;background:#fff;opacity:.75;animation:drift linear infinite}
+.sky i::before,.sky i::after{content:"";position:absolute;background:#fff;border-radius:50%}
+.sky i::before{width:48%;height:150%;left:14%;bottom:30%}
+.sky i::after{width:34%;height:120%;right:14%;bottom:34%}
+.sky i:nth-child(1){top:9%;width:130px;animation-duration:90s;left:-20%}
+.sky i:nth-child(2){top:24%;width:90px;animation-duration:70s;animation-delay:-30s;left:-20%;opacity:.55}
+.sky i:nth-child(3){top:58%;width:170px;animation-duration:120s;animation-delay:-60s;left:-25%;opacity:.5}
+.sky i:nth-child(4){top:40%;width:110px;animation-duration:100s;animation-delay:-80s;left:-20%;opacity:.6}
+@keyframes drift{to{transform:translateX(calc(100vw + 400px))}}
+.hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:22vh;min-height:110px}
+
+#app{position:relative;z-index:1;padding-block:14px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.screen{max-width:1180px;margin:0 auto}
+.screen[hidden]{display:none}
+
+/* tombol */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 20px;border-radius:16px;background:#fff;color:var(--ink);font-weight:800;box-shadow:0 3px 0 rgba(18,38,74,.16),0 8px 18px -10px rgba(18,38,74,.4);transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(18,38,74,.16)}
+.btn[hidden]{display:none}
+.btn.primary{background:var(--orange);color:var(--ink);box-shadow:0 4px 0 var(--orange2),0 12px 22px -10px rgba(232,111,0,.7)}
+.btn.navy{background:var(--ink);color:#fff;box-shadow:0 3px 0 #0a1730}
+.btn.big{min-height:56px;font-size:1.15rem;padding-inline:28px}
+.btn.sm{min-height:40px;padding:6px 14px;border-radius:13px;font-size:.92rem}
+.btn svg{width:20px;height:20px}
+.btn[disabled]{opacity:.5;transform:none}
+.glass{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow);border-radius:26px}
+
+/* beranda */
+.home{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;align-items:center;min-height:min(640px,calc(100vh - 80px));padding-block:10px}
+.brand{display:flex;flex-direction:column;gap:18px;align-items:flex-start;min-width:0}
+.kicker{display:inline-flex;gap:8px;align-items:center;padding:6px 14px;border-radius:99px;background:#fff;font-weight:800;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);box-shadow:var(--shadow)}
+.kicker b{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(39,211,255,.25)}
+.logo{font-size:clamp(3rem,8.6vw,6.2rem);font-weight:800;letter-spacing:-.02em;line-height:.88}
+.logo span{display:block;color:var(--orange);-webkit-text-stroke:0;text-shadow:0 5px 0 rgba(232,111,0,.22)}
+.lead{font-size:clamp(1.02rem,2.2vw,1.25rem);color:var(--ink2);max-width:34ch;font-weight:600}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.namebox{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;border-radius:18px;background:var(--glass);border:1px solid #fff;box-shadow:var(--shadow);max-width:100%}
+.namebox label{font-size:.82rem;color:var(--ink2);font-weight:800;white-space:nowrap}
+.namebox input{border:0;background:#fff;border-radius:12px;padding:9px 12px;font:700 1rem var(--body);color:var(--ink);min-width:0;width:170px;max-width:100%}
+.pillars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%;max-width:520px}
+.pillars div{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:16px;background:var(--glass);border:1px solid #fff;font-size:.78rem;font-weight:800;text-align:center;line-height:1.15;color:var(--ink)}
+.pillars svg{width:30px;height:30px;color:var(--c)}
+.stage-hero{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:260/190}
+.stage-hero .plat{position:absolute;inset:0;width:100%;height:100%}
+.stage-hero .hero-bot{position:absolute;left:50%;bottom:36%;width:41%;transform:translateX(-50%);animation:bob 3.2s ease-in-out infinite;filter:drop-shadow(0 12px 12px rgba(18,38,74,.25))}
+.stage-hero .spark{position:absolute;width:12px;height:12px;border-radius:3px;background:var(--cyan);transform:rotate(45deg);animation:twinkle 3s ease-in-out infinite}
+.stage-hero .spark:nth-of-type(2){left:12%;top:22%;background:var(--orange);animation-delay:-1s}
+.stage-hero .spark:nth-of-type(3){right:10%;top:34%;animation-delay:-2s;width:9px;height:9px}
+.stage-hero .spark:nth-of-type(4){right:24%;top:8%;background:#fff;animation-delay:-.5s}
+@keyframes bob{50%{transform:translateX(-50%) translateY(-9px)}}
+@keyframes twinkle{50%{opacity:.2;transform:rotate(45deg) scale(.6)}}
+
+/* robot */
+.robo{width:100%;height:auto;overflow:visible}
+.robo .e-happy,.robo .e-sad{display:none}
+.robo.happy .e-idle,.robo.sad .e-idle{display:none}
+.robo.happy .e-happy{display:inline}
+.robo.sad .e-sad{display:inline}
+.robo .eyes{transform:translate(var(--ex,0px),var(--ey,0px));transition:transform .25s}
+.robo .e-idle ellipse{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+.robo .ant{animation:glow 1.8s ease-in-out infinite}
+.robo .core{animation:glow 1.4s ease-in-out infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+@keyframes glow{50%{opacity:.45}}
+
+/* peta */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.bar h2{font-size:clamp(1.8rem,4.6vw,2.7rem);font-weight:800}
+.bar .grp{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tot{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;background:#fff;font-weight:800;box-shadow:var(--shadow);font-variant-numeric:tabular-nums}
+.tot svg,.stars svg{width:20px;height:20px}
+.worlds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.world{--c:var(--w1);padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0;position:relative;overflow:hidden}
+.world::before{content:"";position:absolute;inset:0 0 auto 0;height:7px;background:var(--c)}
+.world header{display:flex;align-items:center;gap:14px}
+.world .wi{flex:none;width:58px;height:58px;border-radius:18px;background:var(--c);color:#fff;display:grid;place-items:center;box-shadow:0 5px 0 rgba(0,0,0,.14)}
+.world .wi svg{width:36px;height:36px}
+.world h3{font-size:1.55rem;font-weight:800}
+.world header p{font-size:.92rem;color:var(--ink2);line-height:1.25}
+.world header>div{min-width:0;flex:1}
+.world .info{flex:none;width:40px;height:40px;border-radius:50%;background:#fff;font:800 1.1rem var(--display);box-shadow:0 2px 0 rgba(18,38,74,.14)}
+.nodes{display:grid;gap:8px}
+.node{display:flex;align-items:center;gap:12px;text-align:left;padding:10px 12px;border-radius:18px;background:#fff;border:2px solid transparent;box-shadow:0 2px 0 rgba(18,38,74,.1);transition:transform .12s,border-color .12s;min-height:60px}
+.node:not([disabled]):hover{transform:translateY(-2px);border-color:var(--c)}
+.node .num{flex:none;width:38px;height:38px;border-radius:12px;background:var(--sand2);display:grid;place-items:center;font:800 1.2rem var(--display)}
+.node.done .num{background:var(--c);color:#fff}
+.node .num svg{width:18px;height:18px;color:var(--ink2)}
+.node .nm{flex:1;min-width:0;display:flex;flex-direction:column}
+.node .nm b{font-family:var(--display);font-size:1.12rem;font-weight:700;line-height:1.1}
+.node .nm small{color:var(--ink2);font-size:.8rem;font-weight:700}
+.node[disabled]{opacity:.55;background:rgba(255,255,255,.55)}
+.stars{display:flex;gap:2px;flex:none}
+.stars .on{color:var(--yel)} .stars .off{color:#d4dce6}
+
+/* peta bergambar */
+.mapimg{display:none;position:relative;container-type:inline-size;border-radius:28px;overflow:hidden;box-shadow:var(--shadow);line-height:0;background:#cfeaf5}
+.mapimg img{width:100%;height:auto;display:block}
+.mo{position:absolute;line-height:1.1}
+.mpanel{display:flex;flex-direction:column;gap:.15cqw;padding:.45cqw .5cqw;border-radius:.9cqw;background:#fdf1da}
+.mrow{flex:1;min-height:0;display:flex;align-items:center;gap:.45cqw;padding:0 .3cqw;border-radius:.6cqw;font:700 .86cqw/1.05 var(--body);color:var(--ink);text-align:left}
+.mrow:not([disabled]):hover{background:#fff;outline:2px solid var(--c)}
+.mrow .b{flex:none;width:1.6cqw;height:1.6cqw;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font:800 .95cqw var(--display)}
+.mrow.done .b{background:var(--good)}
+.mrow[disabled]{opacity:.75}
+.mrow[disabled] .b{background:#8a93a3}
+.mrow .b svg{width:.9cqw;height:.9cqw}
+.mrow .t{min-width:0;flex:1}
+.mrow .s{flex:none;font-size:.8cqw;color:#e8a100;letter-spacing:-.05em}
+.mstars{display:flex;justify-content:space-between;align-items:center}
+.mstars svg{width:2.1cqw;height:2.1cqw;color:var(--yel);filter:drop-shadow(0 .15cqw 0 rgba(0,0,0,.25))}
+.mcount{display:grid;place-items:center;background:#f6fbfd;border-radius:99px;font:800 2.1cqw var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
+.mhit{background:transparent;border-radius:2cqw}
+.mhit:hover,.mpad:hover{background:rgba(255,255,255,.28)}
+.mpad{border-radius:50%;background:transparent}
+@media (min-width:901px){.mapimg{display:block}.worlds{display:none}.bar h2,.bar .tot,#mapHome{display:none}.bar{margin-bottom:8px}}
+
+/* highlight misi aktif + batas */
+.maphint{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 14px;border-radius:18px;background:#fff;box-shadow:var(--shadow);font-weight:700;font-size:.95rem;line-height:1.3}
+.maphint .go{margin-left:auto}
+.maphint small{flex-basis:100%;color:var(--ink2);font-weight:700;font-size:.82rem}
+.mrow{position:relative}
+.mrow.open:not(.done):not(.now){background:rgba(255,255,255,.7)}
+.mrow.done{background:rgba(31,174,99,.12)}
+.mrow.now{background:#fff;outline:.22cqw solid var(--c);outline-offset:-.1cqw;z-index:2;animation:nowPulse 1.5s ease-in-out infinite}
+.mrow.now .t{font-weight:800}
+.mrow.now .go{flex:none;display:grid;place-items:center;width:1.5cqw;height:1.5cqw;border-radius:50%;background:var(--c);color:#fff;font-size:.7cqw}
+.mrow.now::before{content:"MULAI DI SINI";position:absolute;right:calc(100% + .9cqw);top:50%;transform:translateY(-50%);white-space:nowrap;padding:.5cqw .8cqw;border-radius:99px;background:var(--c);color:#fff;font:800 .8cqw/1 var(--body);box-shadow:0 .25cqw 0 rgba(0,0,0,.2);animation:nowBob 1.5s ease-in-out infinite}
+.mrow.now::after{content:"";position:absolute;right:calc(100% + .35cqw);top:50%;transform:translateY(-50%);border:.4cqw solid transparent;border-left:.6cqw solid var(--c);border-right:0}
+.mrow.lock{background:rgba(120,130,150,.18)}
+.mrow.edge{box-shadow:0 -.18cqw 0 #8a93a3 inset}
+@keyframes nowPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,201,51,.9)}50%{box-shadow:0 0 0 .6cqw rgba(255,201,51,0)}}
+@keyframes nowBob{50%{transform:translateY(-50%) translateX(-.3cqw)}}
+.node.now{border-color:var(--c);background:#fff;animation:nodePulse 1.5s ease-in-out infinite}
+.node .go{flex:none;padding:5px 12px;border-radius:99px;background:var(--c);color:#fff;font-weight:800;font-size:.8rem}
+.node.lock .nm small{color:#8a93a3}
+@keyframes nodePulse{0%,100%{box-shadow:0 0 0 0 rgba(255,201,51,.9)}50%{box-shadow:0 0 0 7px rgba(255,201,51,0)}}
+@media (prefers-reduced-motion:reduce){.mrow.now,.mrow.now::before,.node.now{animation:none}}
+
+/* level */
+.lv-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.lv-title{flex:1;min-width:200px;display:flex;flex-direction:column;gap:4px}
+.lv-title h2{font-size:clamp(1.3rem,3.4vw,1.9rem);font-weight:800}
+.chip{--c:var(--w1);align-self:flex-start;padding:3px 12px;border-radius:99px;background:var(--c);color:#fff;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.lv-body{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);gap:18px;align-items:start}
+.lv-body.single{grid-template-columns:minmax(0,760px);justify-content:center}
+.col-a,.col-b{display:flex;flex-direction:column;gap:14px;min-width:0}
+.bubble{display:flex;gap:12px;align-items:center;padding:12px 16px 12px 12px;border-radius:22px;background:#fff;box-shadow:var(--shadow);position:relative}
+.bubble .av{flex:none;width:54px;height:62px;border-radius:16px;background:linear-gradient(#e9f9ff,#cfeefa);display:grid;place-items:end center;padding:5px 7px 0;overflow:hidden}
+.bubble p{font-weight:700;font-size:1rem;min-width:0}
+.boardWrap{display:flex;justify-content:center;min-width:0}
+.board{--cell:64px;position:relative;padding:calc(var(--cell)*.16);border-radius:calc(var(--cell)*.46);background:linear-gradient(160deg,#9fe3f4,#6cc9e8);box-shadow:0 1px 0 #fff inset,0 18px 40px -18px rgba(18,38,74,.55),0 0 0 4px rgba(255,255,255,.7)}
+.grid{display:grid;position:relative;grid-template-columns:repeat(var(--cols),var(--cell));grid-template-rows:repeat(var(--rows),var(--cell))}
+.tile{position:relative;margin:calc(var(--cell)*.02);border-radius:calc(var(--cell)*.2);display:grid;place-items:center}
+.tile.f1,.tile.f2{background:var(--sand);box-shadow:0 calc(var(--cell)*.07) 0 var(--sand3),inset 0 0 0 calc(var(--cell)*.03) rgba(255,255,255,.7)}
+.tile.f2{background:var(--sand2)}
+.tile.solid{background:var(--mint);box-shadow:0 calc(var(--cell)*.07) 0 var(--mint2)}
+.tile.water{background:#5bb8f0;box-shadow:0 calc(var(--cell)*.07) 0 #3f9bd6}
+.tile .sym{width:calc(var(--cell)*.84);height:calc(var(--cell)*.84);overflow:visible}
+.tile .sym.decor{width:calc(var(--cell)*.58);height:calc(var(--cell)*.58);opacity:.95}
+.tile .sym.bat{animation:floaty 2s ease-in-out infinite;width:calc(var(--cell)*.74);height:calc(var(--cell)*.74);transition:transform .4s,opacity .4s}
+.tile .sym.bat.got{transform:translateY(-60%) scale(1.5);opacity:0}
+.tile .sym.flag{width:calc(var(--cell)*.8);height:calc(var(--cell)*.8);animation:floaty 2.4s ease-in-out infinite}
+@keyframes floaty{50%{transform:translateY(-8%)}}
+.pad{width:70%;height:70%;border-radius:50%;border:calc(var(--cell)*.05) dashed rgba(23,150,212,.6)}
+.mk{width:68%;height:68%;border-radius:50%;background:var(--orange);color:var(--ink);display:grid;place-items:center;font:800 calc(var(--cell)*.4) var(--display);box-shadow:0 0 0 calc(var(--cell)*.06) rgba(255,138,31,.3);opacity:.45;transition:opacity .3s}
+.mk.now{opacity:1;animation:beacon 1.4s ease-in-out infinite}
+.mk.ok{background:var(--good);color:#fff;opacity:.9;box-shadow:none}
+@keyframes beacon{50%{box-shadow:0 0 0 calc(var(--cell)*.16) rgba(255,138,31,.12)}}
+.board.abs .tile.f1,.board.abs .tile.f2{background:#fff;box-shadow:inset 0 0 0 2px #d4e2ee}
+.board.abs .tile.solid{background:#cfd9e6;box-shadow:none}
+.board.abs .tile.water{background:#cfd9e6;box-shadow:none}
+.board.abs .sym.decor,.board.abs .sym.tree,.board.abs .sym.rock,.board.abs .sym.wave{opacity:0}
+.board.abs{background:linear-gradient(160deg,#e9eff6,#d6e0ec)}
+.sym.decor{transition:opacity .35s}
+.bot{position:absolute;left:0;top:0;width:var(--cell);height:var(--cell);transform:translate(calc(var(--x)*var(--cell)),calc(var(--y)*var(--cell)));transition:transform var(--t,.36s) cubic-bezier(.4,.1,.25,1);z-index:3;pointer-events:none}
+.bot .ring{position:absolute;inset:7%;border-radius:50%;border:calc(var(--cell)*.04) solid rgba(39,211,255,.65);background:radial-gradient(circle,rgba(39,211,255,.2),transparent 70%);transition:transform .26s}
+.bot .ring::before{content:"";position:absolute;left:50%;top:calc(var(--cell)*-.06);transform:translateX(-50%);border:calc(var(--cell)*.09) solid transparent;border-bottom:calc(var(--cell)*.13) solid var(--orange);border-top:0}
+.bot .spr{position:absolute;left:50%;bottom:15%;width:56%;transform:translateX(-50%);filter:drop-shadow(0 calc(var(--cell)*.05) 0 rgba(18,38,74,.2))}
+.bot.hop .spr{animation:hop .34s ease-out}
+.bot.shake .spr{animation:shake .4s}
+@keyframes hop{40%{transform:translateX(-50%) translateY(-22%)}}
+@keyframes shake{20%{transform:translateX(-80%)}40%{transform:translateX(-20%)}60%{transform:translateX(-70%)}80%{transform:translateX(-35%)}}
+.status{min-height:50px;display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:18px;background:#fff;box-shadow:var(--shadow);font-weight:700;border-left:6px solid var(--blue)}
+.status.ok{border-color:var(--good)} .status.bad{border-color:var(--bad)} .status.warn{border-color:var(--yel)}
+.status .bt{margin-left:auto;display:inline-flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+.status .bt svg{width:22px;height:22px}
+.btools{display:flex;gap:10px;flex-wrap:wrap}
+.tgl[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+/* panel program */
+.prog{padding:16px;display:flex;flex-direction:column;gap:14px}
+.prog-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.prog-head h3{font-size:1.35rem;font-weight:800}
+.count{font-weight:800;font-variant-numeric:tabular-nums;padding:4px 12px;border-radius:99px;background:#fff;box-shadow:0 2px 0 rgba(18,38,74,.1);font-size:.9rem}
+.count.full{background:var(--yel)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{padding:6px 12px;border-radius:12px;background:rgba(255,255,255,.7);font-weight:800;font-size:.85rem;color:var(--ink2)}
+.tab.now{background:var(--orange);color:var(--ink)}
+.tab.ok{background:var(--good);color:#fff}
+.lane{display:flex;flex-direction:column;gap:6px}
+.lane-h{font-weight:800;font-size:.86rem;color:var(--ink2);letter-spacing:.04em;text-transform:uppercase}
+.lane-h small{text-transform:none;letter-spacing:0;font-weight:700}
+.slot{min-height:64px;padding:8px;border-radius:18px;border:2px dashed rgba(18,38,74,.25);background:rgba(255,255,255,.55);display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;cursor:pointer;transition:border-color .15s,background .15s}
+.slot.on{border:2px solid var(--blue);background:rgba(255,255,255,.95);box-shadow:0 0 0 4px rgba(39,211,255,.2)}
+.slot .empty{color:var(--ink2);font-size:.88rem;font-weight:700;padding:6px 4px;align-self:center}
+.blk{--b:#1288c8;--t:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 6px 6px 10px;border-radius:12px;background:var(--b);color:var(--t);font-weight:800;font-size:.92rem;box-shadow:0 3px 0 rgba(0,0,0,.18);cursor:default;transition:transform .15s,outline-color .15s;animation:pop .2s ease-out;outline:3px solid transparent}
+.blk.L,.blk.R{--b:#ffbf3c;--t:var(--ink)}
+.blk.REP{--b:#178f55}
+.blk.P{--b:#d63060}
+.blk.run{outline-color:var(--cyan);transform:scale(1.08)}
+.blk .ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.blk .x{width:26px;height:26px;border-radius:8px;background:rgba(0,0,0,.18);color:inherit;font-weight:800;line-height:1;display:grid;place-items:center}
+.blk.REP{flex:1 1 100%;display:flex;flex-direction:column;align-items:stretch;padding:8px;gap:8px}
+.rep-h{display:flex;align-items:center;gap:8px}
+.rep-h b{flex:1}
+.stp{display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,.18);border-radius:10px;padding:2px}
+.stp button{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.25);color:#fff;font-weight:800;font-size:1.1rem;line-height:1}
+.stp output{min-width:34px;text-align:center;font-variant-numeric:tabular-nums}
+.blk.REP .slot{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.6);min-height:52px;cursor:pointer}
+.blk.REP .slot.on{background:#fff;border-color:var(--cyan)}
+.blk.REP .slot .empty{color:#fff}
+.blk.REP .slot.on .empty{color:var(--ink2)}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+.palette{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px}
+.pal{--b:#1288c8;--t:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;padding:8px 6px;border-radius:16px;background:var(--b);color:var(--t);font-weight:800;font-size:.86rem;box-shadow:0 4px 0 rgba(0,0,0,.2);transition:transform .1s}
+.pal:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.pal.L,.pal.R{--b:#ffbf3c;--t:var(--ink)}
+.pal.REP{--b:#178f55}.pal.P{--b:#d63060}
+.pal svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.runbar{display:flex;gap:8px;flex-wrap:wrap}
+.runbar .btn.primary{flex:1 1 180px}
+.tip{font-size:.84rem;color:var(--ink2);font-weight:700}
+.star-goal{font-size:.84rem;color:var(--ink2);font-weight:700;display:flex;align-items:center;gap:6px}
+.star-goal svg{width:16px;height:16px;color:var(--yel)}
+
+/* kuis */
+.qcard{padding:20px;display:flex;flex-direction:column;gap:16px}
+.qprog{display:flex;gap:6px}
+.qprog i{flex:1;height:8px;border-radius:9px;background:rgba(18,38,74,.14)}
+.qprog i.d{background:var(--good)} .qprog i.c{background:var(--orange)}
+.qprompt{font-size:clamp(1.2rem,3vw,1.55rem);font-weight:700;line-height:1.2}
+.seq{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:14px;border-radius:20px;background:rgba(255,255,255,.7)}
+.tk{width:clamp(46px,11vw,64px);height:clamp(46px,11vw,64px);border-radius:16px;background:#fff;display:grid;place-items:center;box-shadow:0 3px 0 rgba(18,38,74,.14);font:800 1.6rem var(--display)}
+.tk svg{width:78%;height:78%}
+.tk.a svg{fill:none;stroke:var(--ink);stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;width:68%;height:68%}
+.tk.q{background:var(--yel);border:3px dashed rgba(18,38,74,.35);box-shadow:none}
+.tk.fill{animation:pop .3s}
+.opts{display:grid;gap:10px}
+.opts.pat{grid-template-columns:repeat(auto-fit,minmax(86px,1fr));justify-items:center}
+.opt{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:#fff;text-align:left;font-weight:700;box-shadow:0 3px 0 rgba(18,38,74,.14);border:2px solid transparent;min-height:54px;transition:transform .1s}
+.opts.pat .opt{justify-content:center;padding:8px}
+.opt:hover{border-color:var(--blue)}
+.opt .cb{flex:none;width:26px;height:26px;border-radius:8px;border:3px solid var(--ink2);display:grid;place-items:center;color:#fff;font-size:.9rem}
+.opt.on{border-color:var(--blue);background:#eaf8ff}
+.opt.on .cb{background:var(--blue);border-color:var(--blue)}
+.opt.bad{border-color:var(--bad);background:#ffeaf0;animation:shk .35s}
+.opt.good{border-color:var(--good);background:#e6f9ee}
+@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ord{display:grid;gap:8px}
+.ord-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.7);min-height:52px;border:2px dashed rgba(18,38,74,.2)}
+.ord-row .n{flex:none;width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font:800 1rem var(--display)}
+.ord-row.f{border-style:solid;border-color:rgba(18,38,74,.1);background:#fff}
+.ord-row.f.bad{border-color:var(--bad);background:#ffeaf0;animation:shk .35s}
+.ord-row.f.good{border-color:var(--good);background:#e6f9ee}
+.ord-row button{flex:1;text-align:left;font-weight:700}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.pool .step{padding:10px 14px;border-radius:14px;background:var(--orange);color:var(--ink);font-weight:800;box-shadow:0 3px 0 var(--orange2);text-align:left}
+.qfb{min-height:28px;font-weight:700;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.7);display:none}
+.qfb.show{display:block}
+.qfb.ok{background:#e6f9ee;border-left:6px solid var(--good)}
+.qfb.bad{background:#ffeaf0;border-left:6px solid var(--bad)}
+.qbar{display:flex;justify-content:flex-end;gap:10px}
+
+/* modal */
+.ov{position:fixed;inset:0;z-index:50;background:rgba(18,38,74,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;overflow:auto;animation:fade .2s}
+.ov[hidden]{display:none}
+@keyframes fade{from{opacity:0}}
+.sheet{width:min(560px,100%);background:#fff;border-radius:30px;padding:26px;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:14px;animation:rise .28s cubic-bezier(.2,.9,.3,1.2);max-height:calc(100vh - 32px);overflow:auto}
+@keyframes rise{from{transform:translateY(30px) scale(.96);opacity:0}}
+.sheet h2{font-size:2rem;font-weight:800}
+.sheet .def{font-size:1.1rem}
+.sheet .eg,.sheet .learn{padding:12px 14px;border-radius:16px;background:var(--sand);font-size:.98rem}
+.sheet .learn{background:#eaf8ff}
+.sheet ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.ihead{display:flex;align-items:center;gap:12px;color:var(--c)}
+.ihead .wi{width:56px;height:56px;border-radius:18px;background:var(--c);color:#fff;display:grid;place-items:center}
+.ihead .wi svg{width:36px;height:36px}
+.ihead span{font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:.85rem}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.result{text-align:center;align-items:center}
+.rstars{display:flex;gap:8px;justify-content:center}
+.rs{width:64px;height:64px;color:#d4dce6;transform:scale(.6)}
+.rs.on{color:var(--yel);animation:starIn .5s cubic-bezier(.2,1.6,.4,1) forwards;animation-delay:var(--d);filter:drop-shadow(0 4px 0 rgba(0,0,0,.12))}
+@keyframes starIn{from{transform:scale(0) rotate(-90deg)}to{transform:scale(1) rotate(0)}}
+.cert{text-align:center;align-items:center;background:linear-gradient(#fff,#fff8e6);border:6px double var(--orange)}
+.cert .nm{font:800 clamp(2rem,8vw,3rem) var(--display);color:var(--orange2);line-height:1}
+.cert .hb{width:120px}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);z-index:60;max-width:min(520px,calc(100vw - 32px));padding:12px 18px;border-radius:18px;background:var(--ink);color:#fff;font-weight:700;opacity:0;pointer-events:none;transition:.28s;box-shadow:0 14px 30px -10px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.confetti{position:fixed;inset:0;z-index:70;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:-20px;border-radius:2px;animation:fall 2.2s ease-in forwards}
+@keyframes fall{to{transform:translate(var(--dx),105vh) rotate(var(--r));opacity:.9}}
+
+@media (max-width:900px){
+  .home{grid-template-columns:1fr;text-align:center;min-height:0}
+  .brand{align-items:center}
+  .lead{margin-inline:auto}
+  .cta{justify-content:center}
+  .stage-hero{order:-1;max-width:340px}
+  .lv-body{grid-template-columns:minmax(0,1fr)}
+  .worlds{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:520px){
+  .pillars{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sheet{padding:20px;border-radius:24px}
+  .btn{padding-inline:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+
+<svg class="hidden-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dbe6f2"/></linearGradient>
+    <linearGradient id="gS" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe27a"/><stop offset="1" stop-color="#ffb21f"/></linearGradient>
+  </defs>
+  <symbol id="i-star" viewBox="0 0 48 48"><path d="M24 4l5.8 12.4 13.5 1.6-10 9.2 2.7 13.4L24 33.8 12 40.6l2.7-13.4-10-9.2 13.5-1.6z" fill="currentColor" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="3" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-tree" viewBox="0 0 64 64"><rect x="28" y="40" width="8" height="16" rx="3" fill="#9a6b3f"/><circle cx="32" cy="30" r="17" fill="#3fae5a"/><circle cx="23" cy="36" r="11" fill="#4cc169"/><circle cx="41" cy="24" r="10" fill="#57cf74"/></symbol>
+  <symbol id="i-rock" viewBox="0 0 64 64"><path d="M8 50l8-24 16-10 18 8 8 24z" fill="#8c9bb0"/><path d="M16 26l16-10 18 8-10 8z" fill="#b2bfd0"/><path d="M40 32l10-8 8 24H40z" fill="#74839a"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 64 64"><path d="M8 26q6-6 12 0t12 0 12 0 12 0M14 40q6-6 12 0t12 0 12 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".75"/></symbol>
+  <symbol id="i-flower" viewBox="0 0 64 64"><path d="M32 34v22" stroke="#3fae5a" stroke-width="4" stroke-linecap="round"/><g fill="#ff7aa8"><circle cx="32" cy="16" r="8"/><circle cx="46" cy="26" r="8"/><circle cx="40" cy="42" r="0"/><circle cx="18" cy="26" r="8"/><circle cx="24" cy="38" r="8"/><circle cx="40" cy="38" r="8"/></g><circle cx="32" cy="29" r="7" fill="#ffd23f"/></symbol>
+  <symbol id="i-mush" viewBox="0 0 64 64"><rect x="26" y="34" width="12" height="20" rx="5" fill="#fff3dc"/><path d="M8 38C8 20 20 10 32 10s24 10 24 28z" fill="#e8484f"/><circle cx="22" cy="28" r="4" fill="#fff"/><circle cx="38" cy="22" r="5" fill="#fff"/><circle cx="46" cy="33" r="3" fill="#fff"/></symbol>
+  <symbol id="i-bat" viewBox="0 0 64 64"><rect x="24" y="6" width="16" height="8" rx="3" fill="#6b7f9c"/><rect x="14" y="12" width="36" height="46" rx="10" fill="#27d3ff" stroke="#12264a" stroke-width="3"/><path d="M35 20L23 37h8l-3 15 14-20h-9z" fill="#fff59a" stroke="#12264a" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 64 64"><rect x="16" y="8" width="5" height="50" rx="2.5" fill="#12264a"/><path d="M21 10h30l-9 11 9 11H21z" fill="#ff8a1f" stroke="#12264a" stroke-width="3" stroke-linejoin="round"/><ellipse cx="18.5" cy="58" rx="10" ry="4" fill="rgba(18,38,74,.25)"/></symbol>
+</svg>
+
+<div class="sky" aria-hidden="true">
+  <i></i><i></i><i></i><i></i>
+  <svg class="hills" viewBox="0 0 800 160" preserveAspectRatio="none"><path d="M0 90C120 30 220 40 330 80S560 130 800 50V160H0z" fill="#b6ec9f" opacity=".7"/><path d="M0 120C150 80 280 100 420 124S680 130 800 98V160H0z" fill="#8fd882" opacity=".85"/></svg>
+</div>
+
+<main id="app">
+  <!-- BERANDA -->
+  <section class="screen home" id="home">
+    <div class="brand">
+      <span class="kicker"><b></b>Petualangan Berpikir Komputasional</span>
+      <h1 class="logo">Robo<span>Komputasi</span></h1>
+      <p class="lead">Bantu Robo menyelesaikan misi di Pulau Sirkuit. Pecah masalah, kenali pola, ambil yang penting, lalu susun algoritmanya.</p>
+      <div class="namebox"><label for="nameIn">Nama petualang</label><input id="nameIn" maxlength="24" placeholder="Tulis namamu" autocomplete="off"></div>
+      <div class="cta">
+        <button class="btn primary big" id="play">Mulai Petualangan</button>
+        <button class="btn big" id="how">Cara Bermain</button>
+      </div>
+      <div class="pillars" id="pillars"></div>
+    </div>
+    <div class="stage-hero" aria-hidden="true">
+      <svg class="plat" viewBox="0 0 260 190">
+        <ellipse cx="130" cy="166" rx="108" ry="18" fill="rgba(18,38,74,.14)"/>
+        <path d="M20 100L130 155V171L20 116Z" fill="#c9a96c"/>
+        <path d="M240 100L130 155V171L240 116Z" fill="#b08d52"/>
+        <path d="M130 45L240 100L130 155L20 100Z" fill="#f7e8c4" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M130 66L206 104L130 142L54 104Z" fill="#efdcae"/>
+        <path d="M130 84L168 103L130 122L92 103Z" fill="none" stroke="#27d3ff" stroke-width="3" opacity=".85"/>
+      </svg>
+      <div class="hero-bot" id="heroBot"></div>
+      <i class="spark"></i><i class="spark"></i><i class="spark"></i><i class="spark"></i>
+    </div>
+  </section>
+
+  <!-- PETA -->
+  <section class="screen" id="map" hidden>
+    <div class="bar">
+      <h2>Peta Petualangan</h2>
+      <div class="grp">
+        <span class="tot"><svg class="on" style="color:var(--yel)"><use href="#i-star"/></svg><span id="totStars">0</span></span>
+        <button class="btn sm" id="certBtn" hidden>Sertifikat</button>
+        <button class="btn sm" id="mapHome">Beranda</button>
+      </div>
+    </div>
+    <div class="maphint" id="mapHint"></div>
+    <div class="mapimg" id="mapimg"><img src="map-bg.jpg" alt="Peta Petualangan dengan empat pulau pilar" draggable="false"><div id="mapov"></div></div>
+    <div class="worlds" id="worlds"></div>
+  </section>
+
+  <!-- LEVEL -->
+  <section class="screen" id="level" hidden>
+    <header class="lv-top">
+      <button class="btn sm" id="back">&larr; Peta</button>
+      <div class="lv-title"><span class="chip" id="lvChip"></span><h2 id="lvTitle"></h2></div>
+      <button class="btn sm" id="hintBtn">Petunjuk</button>
+      <button class="btn sm" id="sndBtn" aria-pressed="true">Suara: Hidup</button>
+    </header>
+    <div class="lv-body" id="lvBody">
+      <div class="col-a">
+        <div class="bubble"><div class="av" id="bubAv"></div><p id="bubTxt"></p></div>
+        <div id="stage"></div>
+      </div>
+      <aside class="col-b" id="panel"></aside>
+    </div>
+  </section>
+</main>
+
+<div class="ov" id="ov" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/*DATA_START*/
+const WORLDS=[
+ {id:1,name:'Dekomposisi',tag:'Pecah masalah besar jadi bagian kecil',color:'var(--w1)',
+  def:'Memecah masalah yang rumit atau besar menjadi bagian-bagian kecil yang lebih sederhana dan lebih mudah dikelola.',
+  ex:'Membereskan kamar itu berat. Pecah jadi: rapikan buku, lipat baju, sapu lantai.',
+  tips:['Setiap bagian kecil punya tujuan sendiri.','Selesaikan satu bagian, baru lanjut ke bagian berikutnya.'],
+  learn:'Kamu memecah masalah besar menjadi misi-misi kecil yang mudah diselesaikan satu per satu.'},
+ {id:2,name:'Pengenalan Pola',tag:'Temukan yang berulang',color:'var(--w2)',
+  def:'Mencari kesamaan, tren, atau pola berulang dari data atau bagian-bagian masalah yang sudah dipecah.',
+  ex:'Anak tangga selalu naik satu, maju satu. Karena berulang, cukup tulis sekali lalu ulangi.',
+  tips:['Lihat langkah apa yang muncul lagi dan lagi.','Blok Ulangi menghemat banyak blok.'],
+  learn:'Kamu menemukan pola berulang, lalu memakainya untuk menyingkat langkah.'},
+ {id:3,name:'Abstraksi',tag:'Ambil yang penting saja',color:'var(--w3)',
+  def:'Memfokuskan perhatian pada informasi yang penting saja dan mengabaikan detail yang tidak relevan.',
+  ex:'Peta jalan hanya menampilkan jalan dan belokan. Warna rumah dan jumlah bunga tidak perlu.',
+  tips:['Pakai tombol Mode Abstrak untuk menyembunyikan hiasan.','Blok Fungsi memberi satu nama untuk sekumpulan langkah, jadi detailnya tersembunyi.'],
+  learn:'Kamu mengabaikan detail yang tidak penting dan menyimpan langkah rumit dalam satu Fungsi.'},
+ {id:4,name:'Algoritma',tag:'Susun langkah yang runtut',color:'var(--w4)',
+  def:'Menyusun langkah-langkah atau aturan urutan yang logis, jelas, dan sistematis untuk menyelesaikan masalah dari awal hingga akhir.',
+  ex:'Resep masakan adalah algoritma. Urutan yang salah membuat hasilnya berantakan.',
+  tips:['Urutan langkah menentukan hasil.','Gabungkan semua pilar: pecah, cari pola, ambil yang penting, lalu susun.'],
+  learn:'Kamu menyusun langkah yang logis, jelas, dan berurutan dari awal sampai selesai.'}
+];
+
+const LEVELS=[
+ {id:'1-1',w:1,kind:'quiz',title:'Pesta Robot',story:'Halo, aku Robo! Misi besar terasa berat kalau dikerjakan sekaligus. Yuk latihan memecahnya.',
+  learn:'Masalah besar jadi mudah ketika dipecah menjadi tugas-tugas kecil.',
+  qs:[
+   {k:'multi',prompt:'Misi besar: Robo harus menyiapkan Pesta Ulang Tahun. Mana saja bagian kecil dari misi ini? Pilih semua yang benar.',
+    opts:[['Menyiapkan kue',1],['Menghias ruangan',1],['Mengundang teman-teman',1],['Menghitung semua bintang di langit',0],['Mengganti warna bulan',0]],
+    why:'Pesta besar dipecah menjadi tugas kecil: kue, hiasan, dan undangan. Itu dekomposisi.'},
+   {k:'multi',prompt:'Misi besar: Membangun Menara Robot 10 lantai. Bagaimana cara memecahnya?',
+    opts:[['Membuat fondasi',1],['Menyusun lantai 1 sampai 5',1],['Menyusun lantai 6 sampai 10',1],['Memasang antena di puncak',1],['Tidur siang seribu tahun',0],['Menghafal nama semua awan',0]],
+    why:'Menara dibangun bertahap: fondasi, lantai bawah, lantai atas, lalu antena.'}
+  ]},
+ {id:'1-2',w:1,kind:'run',seg:true,title:'Dua Misi',story:'Pecah perjalanan jadi dua misi. Misi 1: ke titik A. Misi 2: dari A ke bendera.',
+  hint:'Misi 1 cukup maju. Di Misi 2, Robo harus belok dulu supaya tidak menabrak batu.',
+  map:['S..A..','###.##','..G...'],dir:1,tools:['F','L','R'],max:12,par:8,
+  learn:'Satu rute panjang kamu pecah jadi dua misi pendek.'},
+ {id:'1-3',w:1,kind:'run',seg:true,title:'Tiga Misi',story:'Rute ini berkelok. Selesaikan misi A, lalu B, lalu bendera.',
+  hint:'Setiap misi hanya punya satu tujuan. Lihat arah hadap Robo di akhir misi sebelumnya.',
+  map:['S..A#G.','###.#..','#..B...','.f..m..'],dir:1,tools:['F','L','R'],max:16,par:12,
+  learn:'Tiga misi kecil lebih mudah dipikirkan daripada satu rute panjang.'},
+ {id:'1-4',w:1,kind:'run',seg:true,title:'Menara Empat Misi',story:'Rute terpanjang di pulau ini. Pecah jadi empat misi: A, B, C, lalu bendera.',
+  hint:'Tiap misi pendek. Setelah sampai di titik, Robo menghadap arah terakhirnya.',
+  map:['S.A#..G.','##.#..##','#.B..C.#','.m..f...','T.w..m..'],dir:1,tools:['F','L','R'],max:20,par:14,
+  learn:'Rute yang rumit selesai karena kamu memecahnya menjadi empat bagian.'},
+
+ {id:'2-1',w:2,kind:'quiz',title:'Deretan Misterius',story:'Pola adalah sesuatu yang berulang. Temukan apa yang akan muncul berikutnya.',
+  learn:'Kamu mengenali aturan yang berulang dan memakainya untuk menebak yang berikutnya.',
+  qs:[
+   {k:'pattern',prompt:'Apa yang muncul berikutnya?',seq:['s:circle:o','s:square:c','s:circle:o','s:square:c','s:circle:o'],opts:['s:circle:o','s:square:c','s:triangle:g'],ans:1,why:'Polanya lingkaran, persegi, lingkaran, persegi. Setelah lingkaran, giliran persegi biru.'},
+   {k:'pattern',prompt:'Lanjutkan polanya.',seq:['s:triangle:g','s:triangle:g','s:circle:r','s:triangle:g','s:triangle:g','s:circle:r','s:triangle:g'],opts:['s:circle:r','s:triangle:g','s:square:c'],ans:1,why:'Polanya dua segitiga lalu satu lingkaran. Segitiga kedua belum muncul, jadi berikutnya segitiga.'},
+   {k:'pattern',prompt:'Berapa angka berikutnya?',seq:['n:2','n:4','n:6','n:8'],opts:['n:9','n:10','n:12'],ans:1,why:'Setiap angka bertambah 2, jadi 8 + 2 = 10.'}
+  ]},
+ {id:'2-2',w:2,kind:'quiz',title:'Pola Lebih Sulit',story:'Pola tidak selalu bentuk. Bisa juga angka dan gerakan Robo!',
+  learn:'Pola ada di bentuk, angka, dan gerakan. Mengenalinya membuat kita bisa memprediksi.',
+  qs:[
+   {k:'pattern',prompt:'Berapa angka berikutnya?',seq:['n:1','n:3','n:5','n:7'],opts:['n:8','n:9','n:10'],ans:1,why:'Bilangan ganjil: bertambah 2 setiap kali. 7 + 2 = 9.'},
+   {k:'pattern',prompt:'Ini gerakan Robo. Apa langkah berikutnya?',seq:['a:u','a:u','a:r','a:u','a:u','a:r','a:u','a:u'],opts:['a:u','a:r','a:l'],ans:1,why:'Polanya naik, naik, kanan. Setelah dua naik, Robo belok ke kanan.'},
+   {k:'pattern',prompt:'Berapa angka berikutnya?',seq:['n:3','n:6','n:12','n:24'],opts:['n:30','n:36','n:48'],ans:2,why:'Setiap angka dikali 2. 24 x 2 = 48.'}
+  ]},
+ {id:'2-3',w:2,kind:'run',title:'Tangga Pola',story:'Jalur ini seperti anak tangga: maju, naik, ulangi. Pakai blok Ulangi supaya hemat blok!',
+  hint:'Satu anak tangga = Maju, Belok Kiri, Maju, Belok Kanan. Masukkan ke dalam blok Ulangi lalu atur jumlahnya.',
+  map:['Tw#TG','w#T..','#T..w','T..#w','S.Tw#'],dir:1,tools:['F','L','R','REP'],max:8,par:5,
+  learn:'Satu pola kecil diulang empat kali, jadi kamu hanya butuh 5 blok.'},
+ {id:'2-4',w:2,kind:'run',title:'Jejak Baterai',story:'Ambil semua baterai lalu sampai di bendera. Cari bagian yang berulang.',
+  hint:'Pola jalur: maju dua, naik satu. Berapa kali polanya berulang sebelum bendera?',
+  map:['TwTwT#Tw','TwT#wTbG','Tw#Tb..#','#Tb..Tw#','S..Tw#Tw'],dir:1,tools:['F','L','R','REP'],max:9,par:7,
+  learn:'Mengenali pola yang sama berulang membuat program panjang menjadi pendek.'},
+
+ {id:'3-1',w:3,kind:'quiz',title:'Peta Sederhana',story:'Peta yang baik hanya memuat informasi penting. Mana yang penting, mana yang bisa diabaikan?',
+  learn:'Kamu memilih informasi yang membantu dan mengabaikan detail yang tidak relevan.',
+  qs:[
+   {k:'multi',prompt:'Robo membuat peta ke stasiun pengisian daya. Informasi apa yang penting dimasukkan?',
+    opts:[['Letak batu penghalang',1],['Lokasi stasiun pengisian',1],['Arah jalan dan belokan',1],['Warna bunga di taman',0],['Jumlah awan di langit',0]],
+    why:'Batu, tujuan, dan arah jalan membantu Robo sampai. Bunga dan awan tidak mengubah rutenya.'},
+   {k:'multi',prompt:'Kamu menggambar denah rute lari di sekolah untuk temanmu. Pilih informasi yang penting.',
+    opts:[['Titik awal dan titik akhir',1],['Belokan dan jarak',1],['Rintangan di jalur',1],['Merek sepatu temanmu',0],['Menu kantin hari ini',0]],
+    why:'Rute lari butuh titik awal, akhir, belokan, dan rintangan. Merek sepatu dan menu kantin tidak relevan.'}
+  ]},
+ {id:'3-2',w:3,kind:'run',clutter:true,title:'Taman Berbunga',story:'Banyak bunga dan jamur menutupi pandangan. Coba tombol Mode Abstrak untuk melihat yang penting saja.',
+  hint:'Bunga dan jamur tidak menghalangi jalan. Robo hanya perlu turun lurus, belok, lalu jalan lurus.',
+  map:['Sfm.f#mf','.f#mf.f.','fm.f#fmf','.f.mf.fm','.mf.m.fG'],dir:2,tools:['F','L','R','REP'],max:7,par:5,
+  learn:'Setelah hiasan disembunyikan, jalurnya ternyata sederhana: turun lurus lalu belok.'},
+ {id:'3-3',w:3,kind:'run',title:'Fungsi Lompat',story:'Dua batu menghadang dengan cara yang sama. Buat satu Fungsi untuk melompatinya, lalu panggil dua kali.',
+  hint:'Fungsi Lompat: Kiri, Maju, Kanan, Maju, Maju, Kanan, Maju, Kiri. Di program utama, panggil Fungsi di tiap batu.',
+  map:['TwTwTwTw','wTwTwTwT','...T...#','S#...#.G'],dir:1,tools:['F','L','R','REP','P'],max:16,par:13,
+  learn:'Langkah rumit disimpan sekali dalam Fungsi, lalu dipanggil dengan satu blok.'},
+ {id:'3-4',w:3,kind:'run',title:'Tiga Gua Energi',story:'Ada tiga gua berisi baterai. Masuk, ambil, keluar. Gerakan masuk-keluar itu sama setiap gua!',
+  hint:'Buat Fungsi untuk masuk gua, ambil baterai, lalu kembali ke jalan. Lalu atur jalan di antara gua.',
+  map:['wTTwwTTw','TwTwTwTw','#b#Tb#b#','T.#w.T.#','S......G'],dir:1,tools:['F','L','R','REP','P'],max:20,par:17,
+  learn:'Satu Fungsi dipakai tiga kali. Kamu tidak perlu memikirkan detail gerakannya lagi.'},
+
+ {id:'4-1',w:4,kind:'quiz',title:'Isi Daya Robo',story:'Algoritma adalah langkah-langkah yang berurutan. Susun dengan benar ya!',
+  learn:'Urutan langkah menentukan hasil. Langkah yang jelas membuat tugas selesai.',
+  qs:[
+   {k:'order',prompt:'Urutkan langkah Robo mengisi daya.',steps:['Cari stasiun pengisian','Berjalan ke stasiun','Colok kabel pengisi daya','Tunggu sampai baterai penuh','Cabut kabel'],why:'Mulai dari mencari, mendekat, mengisi, menunggu, lalu mencabut. Urutannya tidak boleh terbalik.'},
+   {k:'order',prompt:'Urutkan algoritma mencuci tangan.',steps:['Basahi tangan dengan air','Gosok sabun ke seluruh tangan','Gosok sela jari selama 20 detik','Bilas dengan air bersih','Keringkan dengan lap bersih'],why:'Basahi, sabun, gosok, bilas, keringkan. Itulah algoritma mencuci tangan.'}
+  ]},
+ {id:'4-2',w:4,kind:'quiz',title:'Resep dan Aturan',story:'Algoritma ada di mana-mana: di dapur, di jalan raya, dan di sekolah.',
+  learn:'Algoritma yang baik logis, jelas, dan bisa diikuti siapa saja.',
+  qs:[
+   {k:'order',prompt:'Urutkan algoritma membuat teh manis.',steps:['Rebus air sampai mendidih','Masukkan teh ke dalam gelas','Tuang air panas','Tambahkan gula','Aduk perlahan'],why:'Teh dan air harus ada dulu sebelum gula ditambahkan dan diaduk.'},
+   {k:'order',prompt:'Urutkan algoritma menyeberang jalan dengan aman.',steps:['Berhenti di tepi jalan','Lihat ke kanan dan ke kiri','Pastikan jalan sepi','Berjalan menyeberang','Sampai di seberang dengan selamat'],why:'Berhenti, lihat, pastikan aman, baru menyeberang.'}
+  ]},
+ {id:'4-3',w:4,kind:'run',title:'Jalur Ular',story:'Kumpulkan semua baterai lalu sampai di bendera. Jalurnya berkelok seperti ular. Susun algoritma terbaikmu.',
+  hint:'Jalan lurus 6 petak, belok, naik 2, belok, lalu jalan lurus lagi. Tiga lintasan lurus itu sama.',
+  map:['...b..G','.#TwT#w','b......','#TwT#w.','S.....b'],dir:1,tools:['F','L','R','REP','P'],max:16,par:14,
+  learn:'Tiga lintasan lurus yang sama dibuat dengan Ulangi atau Fungsi. Algoritmamu lebih singkat.'},
+ {id:'4-4',w:4,kind:'run',title:'Menara Algoritma',story:'Tantangan terakhir! Gunakan semua pilar: pecah rute, cari pola, abaikan yang tidak perlu, lalu susun algoritmanya.',
+  hint:'Bagian 1 adalah tangga (berulang tiga kali). Bagian 2 jalan lurus. Bagian 3 masuk ruang baterai lalu keluar lagi.',
+  map:['TwTwTTwT','#T#T#Tb#','wT#wT#.T','###..b.G','##..####','#..#####','S.######'],dir:1,tools:['F','L','R','REP','P'],max:18,par:16,
+  learn:'Kamu memecah rute, menemukan pola tangga, memakai langkah yang penting, dan menyusun algoritma lengkap.'}
+];
+/*DATA_END*/
+
+/*ENGINE_START*/
+const DIRS=[[0,-1],[1,0],[0,1],[-1,0]];
+const SOLID='#Tw';
+const MAXSTEPS=400;
+function parseMap(rows){
+  const H=rows.length,W=rows[0].length,t=[],marks={},bats=[];let start=null;
+  for(let y=0;y<H;y++){t.push([]);for(let x=0;x<W;x++){const c=rows[y][x];
+    if(c==='S')start={x,y};
+    if('ABCG'.includes(c))marks[c]={x,y};
+    if(c==='b')bats.push({x,y});
+    t[y].push(c);}}
+  return {W,H,t,start,marks,bats};
+}
+function solid(m,x,y){return x<0||y<0||x>=m.W||y>=m.H||SOLID.includes(m.t[y][x]);}
+function flatten(main,proc){
+  const out=[];let tooLong=false;
+  function walk(list,inProc){
+    for(const b of list){
+      if(tooLong)return;
+      if(b.t==='REP'){for(let i=0;i<b.n;i++){walk(b.body,inProc);if(tooLong)return;}}
+      else if(b.t==='P'){if(!inProc)walk(proc,true);}
+      else out.push({op:b.t,id:b.id});
+      if(out.length>MAXSTEPS){tooLong=true;return;}
+    }
+  }
+  walk(main,false);
+  return {steps:out,tooLong};
+}
+function countBlocks(list){let n=0;for(const b of list){n++;if(b.t==='REP')n+=countBlocks(b.body);}return n;}
+function simulate(m,st,steps,target,needAll,got){
+  let x=st.x,y=st.y,d=st.d;const ev=[],col=new Set(got);
+  const done=()=>x===target.x&&y===target.y&&(!needAll||m.bats.every(b=>col.has(b.x+','+b.y)));
+  for(const s of steps){
+    if(s.op==='L'){d=(d+3)%4;ev.push({k:'turn',dd:-1,d,id:s.id});}
+    else if(s.op==='R'){d=(d+1)%4;ev.push({k:'turn',dd:1,d,id:s.id});}
+    else{
+      const nx=x+DIRS[d][0],ny=y+DIRS[d][1];
+      if(solid(m,nx,ny)){ev.push({k:'bump',x,y,d,nx,ny,id:s.id});return {ev,res:'bump',x,y,d,col};}
+      x=nx;y=ny;const key=x+','+y;let gb=null;
+      if(m.bats.some(b=>b.x===x&&b.y===y)&&!col.has(key)){col.add(key);gb=key;}
+      ev.push({k:'move',x,y,d,id:s.id,bat:gb});
+    }
+    if(done())return {ev,res:'win',x,y,d,col};
+  }
+  return {ev,res:(x===target.x&&y===target.y)?'bats':'short',x,y,d,col};
+}
+/*ENGINE_END*/
+
+/* ---------- util ---------- */
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const S={name:'',stars:{},sound:true,intro:{},prog:{}};
+const KEY='robo-komputasi-v1';
+function load(){try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let L=null;
+
+/* ---------- suara ---------- */
+let ac=null;
+function unlockAudio(){if(!S.sound)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();}catch(e){}}
+function tone(f,d=.12,type='sine',v=.06,t0=0){
+  if(!S.sound||!ac)return;
+  try{const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+t0;
+    o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.03);}catch(e){}
+}
+const sfx={
+  step(){tone(520,.08,'triangle')},turn(){tone(380,.07,'square',.03)},
+  coll(){[660,880,1180].forEach((f,i)=>tone(f,.14,'sine',.07,i*.07))},
+  win(){[523,659,784,1047].forEach((f,i)=>tone(f,.22,'triangle',.08,i*.11))},
+  bad(){tone(170,.28,'sawtooth',.05)},click(){tone(700,.05,'sine',.04)},
+  ok(){tone(784,.1);tone(988,.14,'sine',.06,.09)}
+};
+
+/* ---------- grafis ---------- */
+const ICON={
+  F:'<svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/></svg>',
+  L:'<svg viewBox="0 0 24 24"><path d="M18 20v-7a3 3 0 0 0-3-3H6M10 5.5L6 10l4 4.5"/></svg>',
+  R:'<svg viewBox="0 0 24 24"><path d="M6 20v-7a3 3 0 0 1 3-3h9M14 5.5L18 10l-4 4.5"/></svg>',
+  REP:'<svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4M21 7H8a4 4 0 0 0-4 4v1M7 21l-4-4 4-4M3 17h13a4 4 0 0 0 4-4v-1"/></svg>',
+  P:'<svg viewBox="0 0 24 24"><text x="12" y="19" text-anchor="middle" font-size="20" font-weight="800" fill="currentColor" stroke="none" font-family="Baloo 2,sans-serif">ƒ</text></svg>'
+};
+const LABEL={F:'Maju',L:'Belok Kiri',R:'Belok Kanan',REP:'Ulangi',P:'Fungsi'};
+const PILAR=[
+ '<svg viewBox="0 0 48 48" fill="currentColor"><rect x="5" y="5" width="17" height="17" rx="5"/><rect x="26" y="5" width="17" height="17" rx="5" opacity=".7"/><rect x="5" y="26" width="17" height="17" rx="5" opacity=".7"/><rect x="26" y="26" width="17" height="17" rx="5" opacity=".45"/></svg>',
+ '<svg viewBox="0 0 48 48" fill="currentColor"><circle cx="10" cy="16" r="6"/><rect x="19" y="10" width="12" height="12" rx="3" opacity=".75"/><circle cx="38" cy="16" r="6"/><circle cx="10" cy="35" r="6" opacity=".6"/><rect x="19" y="29" width="12" height="12" rx="3" opacity=".45"/><circle cx="38" cy="35" r="6" opacity=".3"/></svg>',
+ '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"><circle cx="21" cy="21" r="12"/><path d="M30 30l12 12"/><circle cx="21" cy="21" r="3.5" fill="currentColor" stroke="none"/></svg>',
+ '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 41h14V27h14V13h8"/><path d="M38 7l6 6-6 6" stroke-width="4"/></svg>'
+];
+function starsHTML(n){return [1,2,3].map(i=>`<svg class="${i<=n?'on':'off'}"><use href="#i-star"/></svg>`).join('');}
+function robotSVG(mood){
+  return `<svg class="robo ${mood||''}" viewBox="0 0 100 124" aria-hidden="true">
+  <line x1="50" y1="9" x2="50" y2="24" stroke="#bccadb" stroke-width="3.5" stroke-linecap="round"/>
+  <circle class="ant" cx="50" cy="8" r="6.5" fill="#ff8a1f"/><circle cx="48" cy="6" r="2" fill="#ffd0a3"/>
+  <rect x="7" y="38" width="15" height="25" rx="7.5" fill="#ff8a1f"/><rect x="78" y="38" width="15" height="25" rx="7.5" fill="#ff8a1f"/>
+  <rect x="11" y="43" width="6" height="15" rx="3" fill="#ffb066"/><rect x="83" y="43" width="6" height="15" rx="3" fill="#ffb066"/>
+  <rect x="14" y="22" width="72" height="58" rx="27" fill="url(#gW)" stroke="#c3d0e0" stroke-width="2"/>
+  <rect x="22" y="31" width="56" height="40" rx="19" fill="#16254b"/>
+  <path d="M30 38q8-5 20-5" stroke="#fff" stroke-opacity=".35" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <g class="eyes">
+    <g class="e-idle"><ellipse cx="39" cy="51" rx="6" ry="8.5" fill="#37e1ff"/><ellipse cx="61" cy="51" rx="6" ry="8.5" fill="#37e1ff"/></g>
+    <g class="e-happy" fill="none" stroke="#37e1ff" stroke-width="5" stroke-linecap="round"><path d="M32 55q7-12 14 0"/><path d="M54 55q7-12 14 0"/></g>
+    <g class="e-sad"><ellipse cx="39" cy="54" rx="5.5" ry="6.5" fill="#37e1ff"/><ellipse cx="61" cy="54" rx="5.5" ry="6.5" fill="#37e1ff"/><path d="M31 44l15 4M69 44l-15 4" stroke="#37e1ff" stroke-width="3.5" stroke-linecap="round"/></g>
+  </g>
+  <rect x="20" y="87" width="13" height="19" rx="6.5" fill="url(#gW)" stroke="#c3d0e0" stroke-width="2"/><rect x="67" y="87" width="13" height="19" rx="6.5" fill="url(#gW)" stroke="#c3d0e0" stroke-width="2"/>
+  <circle cx="26.5" cy="104" r="7" fill="#ff8a1f"/><circle cx="73.5" cy="104" r="7" fill="#ff8a1f"/>
+  <rect x="29" y="82" width="42" height="30" rx="14" fill="url(#gW)" stroke="#c3d0e0" stroke-width="2"/>
+  <circle cx="50" cy="96" r="8.5" fill="#e6f8ff" stroke="#37e1ff" stroke-width="2.5"/><circle class="core" cx="50" cy="96" r="3.8" fill="#37e1ff"/>
+  <ellipse cx="40" cy="116" rx="11" ry="6" fill="#ff8a1f"/><ellipse cx="60" cy="116" rx="11" ry="6" fill="#ff8a1f"/>
+  </svg>`;
+}
+const COL={o:'#ff8a1f',c:'#1796d4',g:'#1fae63',r:'#e63e68',y:'#ffc933',p:'#7b6cf0'};
+function tok(t){
+  const [k,a,b]=t.split(':');
+  if(k==='n')return `<span class="tk">${a}</span>`;
+  if(k==='a')return `<span class="tk a"><svg viewBox="0 0 24 24" style="transform:rotate(${{u:0,r:90,d:180,l:270}[a]}deg)"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>`;
+  const c=COL[b];
+  const sh={
+    circle:`<circle cx="24" cy="24" r="16" fill="${c}"/>`,
+    square:`<rect x="9" y="9" width="30" height="30" rx="6" fill="${c}"/>`,
+    triangle:`<path d="M24 8l16 28H8z" fill="${c}" stroke="${c}" stroke-width="5" stroke-linejoin="round"/>`
+  }[a];
+  return `<span class="tk"><svg viewBox="0 0 48 48">${sh}</svg></span>`;
+}
+
+/* ---------- navigasi ---------- */
+function go(id){
+  $$('.screen').forEach(s=>s.hidden=s.id!==id);
+  window.scrollTo(0,0);
+  if(id==='map')renderMap();
+}
+function toast(t,ms=4200){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),ms);}
+function modal(html){const ov=$('#ov');ov.innerHTML=html;ov.hidden=false;const f=$('.btn.primary',ov)||$('.btn',ov);f&&f.focus();}
+function closeModal(){$('#ov').hidden=true;$('#ov').innerHTML='';}
+function say(t,mood){$('#bubTxt').textContent=t;$('#bubAv').innerHTML=robotSVG(mood||'');}
+function isOpen(i){return i===0||(S.stars[LEVELS[i-1].id]||0)>0;}
+function totalStars(){return LEVELS.reduce((n,l)=>n+(S.stars[l.id]||0),0);}
+function allDone(){return LEVELS.every(l=>(S.stars[l.id]||0)>0);}
+
+function renderHome(){
+  $('#pillars').innerHTML=WORLDS.map((w,i)=>`<div style="--c:${w.color}">${PILAR[i]}<span>${w.name}</span></div>`).join('');
+  $('#heroBot').innerHTML=robotSVG('');
+  $('#nameIn').value=S.name||'';
+}
+function renderMap(){
+  const curIdx=LEVELS.findIndex((l,i)=>isOpen(i)&&!(S.stars[l.id]||0));
+  const cur=LEVELS[curIdx],nxt=LEVELS[curIdx+1],openN=LEVELS.filter((l,i)=>isOpen(i)).length;
+  $('#mapHint').innerHTML=cur
+    ?`<span>▶ Mulai dari: <b>${cur.id} ${cur.title}</b></span><button class="btn primary sm go" data-lv="${cur.id}">Mulai</button><small>Terbuka ${openN} dari ${LEVELS.length} misi. Batas saat ini: misi ${cur.id}${nxt?` — selesaikan dengan minimal 1 bintang untuk membuka ${nxt.id} ${nxt.title}.`:' — misi terakhir!'}</small>`
+    :`<span>🎉 Semua misi selesai! Ulangi misi mana saja untuk mengumpulkan bintang.</span>`;
+  $('#totStars').textContent=totalStars()+' / '+LEVELS.length*3;
+  $('#certBtn').hidden=!allDone();
+  const MP=[{p:[31.9,28.4,11,12.7],s:[28.9,14.4,6.7,3.9],pad:[25.5,40.5]},{p:[64.2,28.7,10.6,12.4],s:[63.9,14.8,6.9,3.9],pad:[56.6,40.2]},{p:[35.8,65.3,12.4,15.1],s:[36.7,49.5,7,4.2],pad:[29.7,79.5]},{p:[79.9,65.3,10.1,15.1],s:[78.2,49.2,7.1,4.2],pad:[73.4,81]}];
+  const box=a=>`left:${a[0]}%;top:${a[1]}%;width:${a[2]}%;height:${a[3]}%`;
+  $('#mapov').innerHTML=WORLDS.map((w,wi)=>{
+    const lv=LEVELS.filter(l=>l.w===w.id),m=MP[wi];
+    const ws=lv.reduce((n,l)=>n+(S.stars[l.id]||0),0),lit=Math.min(3,Math.floor(ws/4));
+    return `<div class="mo mpanel" style="--c:${w.color};${box(m.p)}">${lv.map(l=>{
+      const i=LEVELS.indexOf(l),open=isOpen(i),st=S.stars[l.id]||0;
+      const now=i===curIdx,edge=i===curIdx+1;
+      return `<button class="mrow${st?' done':''}${open?' open':' lock'}${now?' now':''}${edge?' edge':''}" data-lv="${l.id}" ${open?'':'disabled'} aria-label="${l.id} ${l.title}${open?'':' (terkunci)'}"><span class="b">${st?'✓':open?l.id.split('-')[1]:'<svg><use href="#i-lock"/></svg>'}</span><span class="t">${l.title}</span>${st?`<span class="s">${'★'.repeat(st)}</span>`:now?'<span class="go">▶</span>':''}</button>`;}).join('')}</div>`
+    +(lit?`<div class="mo mstars" style="${box(m.s)}">${[1,2,3].map(i=>i<=lit?'<svg><use href="#i-star"/></svg>':'<span></span>').join('')}</div>`:'')
+    +`<button class="mo mpad" data-intro="${w.id}" aria-label="Tentang ${w.name}" style="left:${m.pad[0]}%;top:${m.pad[1]}%;width:8%;aspect-ratio:1.2"></button>`;
+  }).join('')+`<div class="mo mcount" style="left:8.6%;top:4.9%;width:11.3%;height:7.2%">${totalStars()} / ${LEVELS.length*3}</div>
+    <button class="mo mhit" data-go="home" aria-label="Beranda" style="left:92.7%;top:2.4%;width:5.8%;height:10.3%"></button>
+    <button class="mo mhit" data-go="home" aria-label="Kembali" style="left:1.9%;top:87.3%;width:14.6%;height:9.4%"></button>`;
+  $('#worlds').innerHTML=WORLDS.map((w,wi)=>{
+    const lv=LEVELS.filter(l=>l.w===w.id);
+    return `<article class="world glass" style="--c:${w.color}">
+      <header><div class="wi">${PILAR[wi]}</div><div><h3>${w.name}</h3><p>${w.tag}</p></div><button class="info" data-intro="${w.id}" aria-label="Tentang ${w.name}">i</button></header>
+      <div class="nodes">${lv.map(l=>{
+        const i=LEVELS.indexOf(l),open=isOpen(i),st=S.stars[l.id]||0;
+        const now=i===curIdx;
+        return `<button class="node${st?' done':''}${now?' now':''}${open?'':' lock'}" data-lv="${l.id}" ${open?'':'disabled'}>
+          <span class="num">${open?l.id.split('-')[1]:'<svg><use href="#i-lock"/></svg>'}</span>
+          <span class="nm"><b>${l.title}</b><small>${l.kind==='run'?'Petualangan koding':'Teka-teki'}</small></span>
+          ${now?'<span class="go">Mulai ▶</span>':`<span class="stars">${starsHTML(st)}</span>`}</button>`;}).join('')}</div></article>`;
+  }).join('');
+}
+function showIntro(wid,cb){
+  const w=WORLDS[wid-1];
+  modal(`<div class="sheet" style="--c:${w.color}" role="dialog" aria-modal="true">
+    <div class="ihead"><div class="wi">${PILAR[wid-1]}</div><span>Pilar ${wid} dari 4</span></div>
+    <h2>${w.name}</h2><p class="def">${w.def}</p>
+    <div class="eg"><b>Contoh:</b> ${w.ex}</div>
+    <ul>${w.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+    <div class="btnrow"><button class="btn primary" data-act="close">Siap, mulai!</button></div></div>`);
+  S.intro[wid]=1;save();
+}
+function showHow(){
+  modal(`<div class="sheet" role="dialog" aria-modal="true"><h2>Cara Bermain</h2>
+    <ul>
+      <li>Bantu Robo sampai ke bendera. Ketuk blok perintah untuk menyusun program.</li>
+      <li>Kotak bergaris biru adalah tempat blok baru masuk. Ketuk kotak lain untuk memindahkannya.</li>
+      <li>Tekan <b>Jalankan</b> dan lihat Robo bergerak. Kalau gagal, ubah programmu dan coba lagi.</li>
+      <li>Makin sedikit blok, makin banyak bintang.</li>
+      <li>Di komputer: tombol panah untuk menambah blok, Enter untuk menjalankan, Backspace untuk menghapus.</li>
+    </ul>
+    <p class="def">Ada 4 pilar: Dekomposisi, Pengenalan Pola, Abstraksi, dan Algoritma. Selesaikan semuanya untuk mendapat sertifikat.</p>
+    <div class="btnrow"><button class="btn primary" data-act="close">Mengerti</button></div></div>`);
+}
+function showCert(){
+  const nm=(S.name||'Petualang').trim()||'Petualang';
+  const tgl=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  modal(`<div class="sheet cert" role="dialog" aria-modal="true">
+    <div class="hb">${robotSVG('happy')}</div>
+    <p style="font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)">Sertifikat Petualang</p>
+    <div class="nm">${nm.replace(/[<>&]/g,'')}</div>
+    <p class="def">telah menyelesaikan seluruh misi Robo Komputasi dan menguasai empat pilar berpikir komputasional: Dekomposisi, Pengenalan Pola, Abstraksi, dan Algoritma.</p>
+    <p><b>${totalStars()} dari ${LEVELS.length*3} bintang</b> &middot; ${tgl}</p>
+    <div class="btnrow"><button class="btn primary" data-act="close">Tutup</button></div></div>`);
+  confetti();
+}
+function confetti(){
+  if(reduce)return;
+  const c=document.createElement('div');c.className='confetti';
+  const cols=['#ff8a1f','#27d3ff','#ffc933','#e63e68','#1fae63','#7b6cf0'];
+  for(let i=0;i<46;i++){const s=document.createElement('i');
+    s.style.cssText=`left:${Math.random()*100}%;background:${cols[i%6]};--dx:${(Math.random()-.5)*220}px;--r:${Math.random()*720}deg;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*7}px;height:${9+Math.random()*10}px`;
+    c.appendChild(s);}
+  document.body.appendChild(c);setTimeout(()=>c.remove(),3000);
+}
+
+/* ---------- level ---------- */
+function openLevel(id){
+  const lv=LEVELS.find(l=>l.id===id),w=WORLDS[lv.w-1];
+  L={lv,w,token:0,running:false,fails:0,speed:1,abs:false,uid:1,mist:0,qi:0,rot:0,seg:0};
+  $('#lvChip').textContent=w.name;$('#lvChip').style.setProperty('--c',w.color);
+  $('#lvTitle').textContent=lv.id+'  '+lv.title;
+  say(lv.story,'');
+  go('level');
+  if(lv.kind==='run')initRun();else initQuiz();
+  if(!S.intro[lv.w])showIntro(lv.w);
+}
+function leaveLevel(){if(L)L.token++;L=null;go('map');}
+
+/* ---------- mode koding ---------- */
+function initRun(){
+  const lv=L.lv;
+  L.map=parseMap(lv.map);
+  L.segs=lv.seg?['A','B','C','G'].filter(k=>L.map.marks[k]):['G'];
+  L.lists={m:L.segs.map(()=>[]),proc:[]};
+  L.active=L.lists.m[0];
+  L.bot={x:L.map.start.x,y:L.map.start.y,d:lv.dir};L.rot=lv.dir*90;
+  L.segStart={x:L.bot.x,y:L.bot.y,d:lv.dir,rot:L.rot};
+  L.got=new Set();L.gotStart=new Set();
+  const pg=S.prog&&S.prog[lv.id];
+  if(pg&&lv.seg&&pg.seg>0&&pg.seg<L.segs.length){
+    L.seg=pg.seg;pg.lists.forEach((l,i)=>{L.lists.m[i]=l;});L.active=L.lists.m[L.seg];
+    L.segStart=pg.segStart;L.rot=pg.segStart.rot;L.bot={x:pg.segStart.x,y:pg.segStart.y,d:pg.segStart.d};
+    L.gotStart=new Set(pg.gotStart);L.got=new Set(L.gotStart);
+    let mx=0;allLists().forEach(l=>eachBlock(l,b=>{if(b.id>mx)mx=b.id;}));L.uid=mx+1;
+  }
+  $('#lvBody').classList.remove('single');
+  buildStage();buildPanel();fit();placeBot(false);
+  setStatus(lv.seg?(L.seg?`Selamat datang kembali! Lanjut ke Misi ${L.seg+1}.`:'Misi 1: antar Robo ke titik A.'):'Susun program lalu tekan Jalankan.','');
+}
+function buildStage(){
+  const m=L.map;
+  const tiles=[];
+  for(let y=0;y<m.H;y++)for(let x=0;x<m.W;x++){
+    const c=m.t[y][x];let cls='tile',inner='';
+    if(c==='#'||c==='T'){cls+=' solid';const n=c==='T'?'tree':'rock';inner=`<svg class="sym ${n}"><use href="#i-${n}"/></svg>`;}
+    else if(c==='w'){cls+=' water';inner='<svg class="sym wave"><use href="#i-wave"/></svg>';}
+    else{
+      cls+=(x+y)%2?' f2':' f1';
+      if(c==='f')inner='<svg class="sym decor"><use href="#i-flower"/></svg>';
+      else if(c==='m')inner='<svg class="sym decor"><use href="#i-mush"/></svg>';
+      else if(c==='b')inner=`<svg class="sym bat" id="bat-${x}-${y}"><use href="#i-bat"/></svg>`;
+      else if(c==='S')inner='<span class="pad"></span>';
+      else if(c==='G')inner='<svg class="sym flag"><use href="#i-flag"/></svg>';
+      else if('ABC'.includes(c))inner=`<span class="mk" data-k="${c}">${c}</span>`;
+    }
+    tiles.push(`<div class="${cls}" style="grid-column:${x+1};grid-row:${y+1}">${inner}</div>`);
+  }
+  const hasBat=m.bats.length>0;
+  $('#stage').innerHTML=`
+    <div class="boardWrap" id="boardWrap"><div class="board" id="board" style="--cols:${m.W};--rows:${m.H}">
+      <div class="grid">${tiles.join('')}
+        <div class="bot" id="bot" style="--x:0;--y:0"><div class="ring" id="ring"></div><div class="spr" id="spr"></div></div>
+      </div></div></div>
+    <div class="status" id="status"><span id="stTxt"></span>${hasBat?`<span class="bt" id="batCt"><svg><use href="#i-bat"/></svg><b id="batN">0</b>/${m.bats.length}</span>`:''}</div>
+    <div class="btools">
+      ${L.lv.clutter?'<button class="btn sm tgl" id="absBtn" aria-pressed="false">Mode Abstrak: Mati</button>':''}
+      <button class="btn sm tgl" id="spdBtn" aria-pressed="false">Kecepatan 1x</button>
+    </div>`;
+  $('#spr').innerHTML=robotSVG('');
+  updateMarks();
+}
+function fit(){
+  if(!L||L.lv.kind!=='run')return;
+  const wrap=$('#boardWrap');if(!wrap)return;
+  const m=L.map,aw=wrap.clientWidth-26,wide=matchMedia('(min-width:901px)').matches;
+  const maxH=wide?Math.max(280,innerHeight-330):Math.max(210,innerHeight*.4);
+  const cell=Math.max(28,Math.min(88,Math.floor(aw/m.W),Math.floor(maxH/m.H)));
+  $('#board').style.setProperty('--cell',cell+'px');
+}
+function placeBot(anim){
+  const b=$('#bot');if(!b)return;
+  b.style.setProperty('--t',anim?(.36/L.speed)+'s':'0s');
+  b.style.setProperty('--x',L.bot.x);b.style.setProperty('--y',L.bot.y);
+  $('#ring').style.transform=`rotate(${L.rot}deg)`;
+  const e=[[0,-6],[7,0],[0,5],[-7,0]][L.bot.d];
+  $('#spr').firstElementChild.style.setProperty('--ex',e[0]+'px');
+  $('#spr').firstElementChild.style.setProperty('--ey',e[1]+'px');
+}
+function mood(m){const r=$('#spr .robo');if(r)r.setAttribute('class','robo '+m);}
+function setStatus(t,cls){const s=$('#status');if(!s)return;s.className='status '+(cls||'');$('#stTxt').textContent=t;}
+function updateMarks(){
+  $$('.mk').forEach(el=>{
+    const k=el.dataset.k,i=L.segs.indexOf(k);
+    el.classList.toggle('ok',i>=0&&i<L.seg);
+    el.classList.toggle('now',i===L.seg);
+    if(i>=0&&i<L.seg)el.textContent='✓';
+  });
+}
+
+/* panel program */
+function eachBlock(list,cb){for(const b of list){cb(b,list);if(b.t==='REP')eachBlock(b.body,cb);}}
+function allLists(){return [...L.lists.m,L.lists.proc];}
+function findBlock(id){let r=null;for(const l of allLists())eachBlock(l,(b,p)=>{if(b.id===id)r={b,p};});return r;}
+function findList(key){
+  if(key==='m')return L.lists.m[L.seg];
+  if(key==='proc')return L.lists.proc;
+  const f=findBlock(+key);return f?f.b.body:null;
+}
+function inProc(list){
+  if(list===L.lists.proc)return true;
+  let r=false;eachBlock(L.lists.proc,b=>{if(b.t==='REP'&&b.body===list)r=true;});return r;
+}
+function totalBlocks(){return allLists().reduce((n,l)=>n+countBlocks(l),0);}
+function buildPanel(){
+  const lv=L.lv,tools=lv.tools;
+  $('#panel').innerHTML=`<div class="prog glass">
+    <div class="prog-head"><h3>Program Robo</h3><span class="count" id="count"></span></div>
+    ${lv.seg?'<div class="tabs" id="tabs"></div>':''}
+    <div id="lanes"></div>
+    <div class="star-goal"><svg><use href="#i-star"/></svg>Bintang penuh jika memakai ${lv.par} blok atau kurang</div>
+    <div class="palette" id="palette">${tools.map(t=>`<button class="pal ${t}" data-add="${t}" aria-label="Tambah ${LABEL[t]}">${ICON[t]}<span>${LABEL[t]}</span></button>`).join('')}</div>
+    <p class="tip">Blok baru masuk ke kotak yang bergaris biru. Ketuk kotak lain untuk berpindah.</p>
+    <div class="runbar">
+      <button class="btn primary big" id="runBtn">Jalankan</button>
+      <button class="btn" id="resetBtn">Ulang</button>
+      <button class="btn" id="clearBtn">Hapus Semua</button>
+    </div></div>`;
+  renderLanes();
+}
+function blockHTML(b){
+  if(b.t==='REP')return `<div class="blk REP" data-id="${b.id}">
+    <div class="rep-h"><span class="ico">${ICON.REP}</span><b>Ulangi</b>
+      <span class="stp"><button data-act="dec" data-id="${b.id}" aria-label="Kurangi">&minus;</button><output>${b.n}x</output><button data-act="inc" data-id="${b.id}" aria-label="Tambah">+</button></span>
+      <button class="x" data-act="del" data-id="${b.id}" aria-label="Hapus">&times;</button></div>
+    <div class="slot${L.active===b.body?' on':''}" data-list="${b.id}">${listHTML(b.body)}</div></div>`;
+  return `<div class="blk ${b.t}" data-id="${b.id}"><span class="ico">${ICON[b.t]}</span><b>${LABEL[b.t]}</b><button class="x" data-act="del" data-id="${b.id}" aria-label="Hapus">&times;</button></div>`;
+}
+function listHTML(l){return l.length?l.map(blockHTML).join(''):'<span class="empty">Kosong. Ketuk blok di bawah.</span>';}
+function renderLanes(){
+  const lv=L.lv,name=k=>k==='G'?'bendera':'titik '+k;
+  const main=L.lists.m[L.seg];
+  const title=lv.seg?`Misi ${L.seg+1}: ${L.seg===0?'Start':'titik '+L.segs[L.seg-1]} ke ${name(L.segs[L.seg])}`:'Program Utama';
+  let h=`<div class="lane"><div class="lane-h">${title}</div><div class="slot${L.active===main?' on':''}" data-list="m">${listHTML(main)}</div></div>`;
+  if(lv.tools.includes('P'))h+=`<div class="lane" style="margin-top:10px"><div class="lane-h">Fungsi <small>(kumpulan langkah yang bisa dipanggil)</small></div><div class="slot${L.active===L.lists.proc?' on':''}" data-list="proc">${listHTML(L.lists.proc)}</div></div>`;
+  $('#lanes').innerHTML=h;
+  const tot=totalBlocks(),c=$('#count');
+  c.textContent=`${tot} / ${lv.max} blok`;c.classList.toggle('full',tot>=lv.max);
+  if(lv.seg)$('#tabs').innerHTML=L.segs.map((k,i)=>`<span class="tab ${i<L.seg?'ok':i===L.seg?'now':''}">${i<L.seg?'✓ ':''}Misi ${i+1}</span>`).join('');
+}
+function addBlock(t){
+  if(!L||L.running)return;
+  if(t==='P'&&inProc(L.active)){toast('Fungsi tidak boleh memanggil dirinya sendiri.');sfx.bad();return;}
+  if(totalBlocks()>=L.lv.max){toast('Batas blok tercapai. Coba pakai Ulangi atau Fungsi supaya lebih singkat.');sfx.bad();return;}
+  const b=t==='REP'?{id:L.uid++,t,n:2,body:[]}:{id:L.uid++,t};
+  L.active.push(b);
+  if(t==='REP')L.active=b.body;
+  sfx.click();renderLanes();
+}
+function delBlock(id){
+  if(L.running)return;
+  const f=findBlock(id);if(!f)return;
+  f.p.splice(f.p.indexOf(f.b),1);
+  if(!allLists().includes(L.active)){let ok=false;for(const l of allLists()){if(l===L.active)ok=true;eachBlock(l,b=>{if(b.t==='REP'&&b.body===L.active)ok=true;});}
+    if(!ok)L.active=inProc(L.active)?L.lists.proc:L.lists.m[L.seg];}
+  sfx.click();renderLanes();
+}
+function stepRep(id,d){
+  if(L.running)return;const f=findBlock(id);if(!f)return;
+  f.b.n=Math.max(2,Math.min(12,f.b.n+d));sfx.click();renderLanes();
+}
+function clearProg(){
+  if(L.running)return;
+  L.lists.m[L.seg].length=0;L.lists.proc.length=0;L.active=L.lists.m[L.seg];renderLanes();
+}
+function highlight(id){
+  $$('.blk.run').forEach(e=>e.classList.remove('run'));
+  if(id==null)return;
+  const e=$(`.blk[data-id="${id}"]`);if(e)e.classList.add('run');
+}
+function resetBoard(anim){
+  L.bot={x:L.segStart.x,y:L.segStart.y,d:L.segStart.d};L.rot=L.segStart.rot;
+  L.got=new Set(L.gotStart);
+  $$('.sym.bat').forEach(e=>e.classList.remove('got'));
+  L.got.forEach(k=>{const [x,y]=k.split(',');const e=$(`#bat-${x}-${y}`);if(e)e.classList.add('got');});
+  setBat();placeBot(anim);mood('');
+}
+function setBat(){const n=$('#batN');if(n)n.textContent=L.got.size;}
+async function wait(ms){await sleep(reduce?20:ms/L.speed);}
+
+async function runProgram(){
+  if(!L||L.running)return;
+  unlockAudio();
+  const main=L.lists.m[L.seg];
+  if(!main.length){setStatus('Susun blokmu dulu ya.','warn');sfx.bad();return;}
+  const fl=flatten(main,L.lists.proc);
+  if(fl.tooLong){setStatus('Programmu terlalu panjang. Periksa blok Ulangi.','warn');return;}
+  resetBoard(false);
+  L.running=true;const tok=++L.token;
+  $('#runBtn').disabled=true;
+  setStatus('Robo sedang menjalankan programmu...','');
+  const target=L.map.marks[L.segs[L.seg]],last=L.seg===L.segs.length-1;
+  const sim=simulate(L.map,L.segStart,fl.steps,target,!L.lv.seg,L.gotStart);
+  await sleep(200);
+  for(const e of sim.ev){
+    if(tok!==L.token)return;
+    highlight(e.id);
+    const b=$('#bot');
+    if(e.k==='turn'){
+      L.rot+=e.dd*90;L.bot.d=e.d;placeBot(true);sfx.turn();await wait(280);
+    }else if(e.k==='move'){
+      L.bot.x=e.x;L.bot.y=e.y;placeBot(true);
+      b.classList.remove('hop');void b.offsetWidth;b.classList.add('hop');sfx.step();
+      await wait(380);
+      if(e.bat){L.got.add(e.bat);const [x,y]=e.bat.split(',');const be=$(`#bat-${x}-${y}`);if(be)be.classList.add('got');setBat();sfx.coll();}
+    }else{
+      mood('sad');b.classList.add('shake');sfx.bad();
+      b.style.setProperty('--t',(.14/L.speed)+'s');
+      b.style.setProperty('--x',e.x+(e.nx-e.x)*.35);b.style.setProperty('--y',e.y+(e.ny-e.y)*.35);
+      await wait(160);
+      b.style.setProperty('--x',e.x);b.style.setProperty('--y',e.y);
+      await wait(420);b.classList.remove('shake');
+    }
+  }
+  if(tok!==L.token)return;
+  highlight(null);
+  L.running=false;$('#runBtn').disabled=false;
+  const bad=async msg=>{
+    L.fails++;mood('sad');setStatus(msg,'bad');say(msg,'sad');await sleep(reduce?50:900);
+    if(tok!==L.token)return;resetBoard(true);
+    if(L.fails===3)toast('Buntu? Tekan tombol Petunjuk di atas.');
+  };
+  if(sim.res==='win'){
+    mood('happy');sfx.ok();
+    if(!last){
+      L.segStart={x:sim.x,y:sim.y,d:sim.d,rot:L.rot};L.gotStart=new Set(sim.col);
+      const done=L.seg+1;L.seg++;L.active=L.lists.m[L.seg];updateMarks();
+      setStatus(`Misi ${done} selesai! Lanjut ke Misi ${done+1}.`,'ok');say(`Hebat! Misi ${done} selesai. Sekarang Misi ${done+1}.`,'happy');
+      S.prog=S.prog||{};S.prog[L.lv.id]={seg:L.seg,segStart:L.segStart,gotStart:[...L.gotStart],lists:L.lists.m.slice(0,L.seg).map(l=>JSON.parse(JSON.stringify(l)))};save();
+      renderLanes();
+    }else{
+      updateMarks();finishRun();
+    }
+  }else if(sim.res==='bump')await bad('Aduh, Robo menabrak penghalang. Periksa lagi langkah dan arah belokmu.');
+  else if(sim.res==='bats')await bad('Robo sudah di bendera, tetapi masih ada baterai yang belum diambil.');
+  else await bad('Robo belum sampai di tujuan. Tambah atau perbaiki langkahmu.');
+}
+function finishRun(){
+  const n=totalBlocks(),par=L.lv.par,st=n<=par?3:n<=par+2?2:1;
+  setStatus('Berhasil! Robo sampai di tujuan.','ok');say('Yeay, misi berhasil!','happy');
+  sfx.win();confetti();
+  S.stars[L.lv.id]=Math.max(S.stars[L.lv.id]||0,st);if(S.prog)delete S.prog[L.lv.id];save();
+  setTimeout(()=>showResult(st,`Kamu memakai <b>${n} blok</b>. ${st===3?'Efisien sekali.':`Untuk bintang penuh, coba capai ${par} blok atau kurang.`}`),reduce?50:1100);
+}
+function resetRun(){
+  if(!L||L.lv.kind!=='run')return;
+  L.token++;L.running=false;highlight(null);
+  const r=$('#runBtn');if(r)r.disabled=false;
+  resetBoard(true);setStatus('Robo kembali ke posisi awal misi ini.','');
+}
+
+/* ---------- kuis ---------- */
+function initQuiz(){
+  $('#lvBody').classList.add('single');$('#panel').innerHTML='';
+  L.qi=0;L.mist=0;renderQ();
+}
+function shuffle(a){const r=a.map((_,i)=>i);let s=0;do{for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}s++;}while(s<20&&r.every((v,i)=>v===i));return r;}
+function renderQ(){
+  const lv=L.lv,q=lv.qs[L.qi];L.done=false;L.sel=new Set();
+  const dots=lv.qs.map((_,i)=>`<i class="${i<L.qi?'d':i===L.qi?'c':''}"></i>`).join('');
+  let body='';
+  if(q.k==='pattern'){
+    body=`<div class="seq">${q.seq.map(tok).join('')}<span class="tk q" id="slot">?</span></div>
+      <div class="opts pat">${q.opts.map((o,i)=>`<button class="opt" data-pick="${i}" aria-label="Pilihan ${i+1}">${tok(o)}</button>`).join('')}</div>`;
+  }else if(q.k==='multi'){
+    body=`<div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-tog="${i}"><span class="cb"></span><span>${o[0]}</span></button>`).join('')}</div>`;
+  }else{
+    L.ord={pool:shuffle(q.steps),ans:[]};
+    body=`<div class="ord" id="ord"></div><div class="pool" id="pool"></div>`;
+  }
+  $('#stage').innerHTML=`<div class="qcard glass"><div class="qprog">${dots}</div>
+    <h3 class="qprompt">${q.prompt}</h3>${body}
+    <div class="qfb" id="qfb" role="status"></div>
+    <div class="qbar">${q.k==='pattern'?'':'<button class="btn" id="qCheck">Periksa</button>'}<button class="btn primary" id="qNext" hidden>${L.qi===lv.qs.length-1?'Selesai':'Lanjut'}</button></div></div>`;
+  if(q.k==='order')renderOrd();
+  say(L.qi===0?lv.story:'Bagus! Soal berikutnya.','');
+}
+function renderOrd(){
+  const q=L.lv.qs[L.qi],o=L.ord;
+  const rows=q.steps.map((_,pos)=>{
+    const v=o.ans[pos];
+    return v===undefined?`<div class="ord-row"><span class="n">${pos+1}</span><span style="color:var(--ink2)">Pilih langkah ke-${pos+1}</span></div>`
+      :`<div class="ord-row f" data-pos="${pos}"><span class="n">${pos+1}</span><button data-unpick="${pos}">${q.steps[v]}</button></div>`;
+  });
+  $('#ord').innerHTML=rows.join('');
+  $('#pool').innerHTML=o.pool.map(i=>`<button class="step" data-order="${i}">${q.steps[i]}</button>`).join('');
+}
+function fb(ok,t){const f=$('#qfb');f.className='qfb show '+(ok?'ok':'bad');f.textContent=t;}
+function qCorrect(){
+  const q=L.lv.qs[L.qi];L.done=true;sfx.ok();say('Tepat sekali!','happy');
+  fb(true,q.why);
+  const c=$('#qCheck');if(c)c.hidden=true;$('#qNext').hidden=false;$('#qNext').focus();
+}
+function qWrong(msg){L.mist++;sfx.bad();say('Hampir! Coba lagi.','sad');fb(false,msg);}
+function stageClick(e){
+  if(!L||L.lv.kind!=='quiz'||L.done)return;
+  const q=L.lv.qs[L.qi],t=e.target;
+  const pick=t.closest('[data-pick]');
+  if(pick){
+    const i=+pick.dataset.pick;unlockAudio();
+    if(i===q.ans){pick.classList.add('good');const s=$('#slot');s.className='tk fill';s.innerHTML=tok(q.opts[i]).replace(/^<span class="tk[^"]*">|<\/span>$/g,'');qCorrect();}
+    else{pick.classList.remove('bad');void pick.offsetWidth;pick.classList.add('bad');qWrong('Belum tepat. Lihat lagi apa yang berulang pada deretan itu.');}
+    return;
+  }
+  const tg=t.closest('[data-tog]');
+  if(tg){unlockAudio();const i=+tg.dataset.tog;tg.classList.toggle('on');tg.classList.remove('bad');L.sel.has(i)?L.sel.delete(i):L.sel.add(i);sfx.click();return;}
+  const od=t.closest('[data-order]');
+  if(od){unlockAudio();const i=+od.dataset.order;L.ord.pool=L.ord.pool.filter(v=>v!==i);L.ord.ans.push(i);sfx.click();renderOrd();return;}
+  const un=t.closest('[data-unpick]');
+  if(un){const pos=+un.dataset.unpick;const [v]=L.ord.ans.splice(pos,1);L.ord.pool.push(v);sfx.click();renderOrd();$('#qfb').className='qfb';}
+}
+function quizCheck(){
+  const q=L.lv.qs[L.qi];unlockAudio();
+  if(q.k==='multi'){
+    const need=q.opts.map((o,i)=>o[1]?i:-1).filter(i=>i>=0);
+    const wrongSel=[...L.sel].filter(i=>!q.opts[i][1]);
+    if(!L.sel.size){fb(false,'Pilih dulu jawabanmu.');return;}
+    if(wrongSel.length===0&&L.sel.size===need.length){$$('.opt').forEach((b,i)=>{if(q.opts[i][1])b.classList.add('good');});qCorrect();}
+    else{
+      $$('.opt').forEach((b,i)=>{if(wrongSel.includes(i)){b.classList.remove('bad');void b.offsetWidth;b.classList.add('bad');}});
+      qWrong(wrongSel.length?'Ada pilihan yang kurang tepat. Ingat, pilih hanya yang sesuai dengan misinya.':`Masih ada yang terlewat. Jawaban yang benar ada ${need.length}.`);
+    }
+  }else{
+    if(L.ord.pool.length){fb(false,'Letakkan semua langkah dulu.');return;}
+    const rows=$$('.ord-row.f');let ok=true;
+    L.ord.ans.forEach((v,pos)=>{const good=v===pos;if(!good)ok=false;rows[pos].classList.remove('good','bad');void rows[pos].offsetWidth;rows[pos].classList.add(good?'good':'bad');});
+    if(ok)qCorrect();else qWrong('Ada langkah yang urutannya salah (yang merah). Ketuk untuk melepas dan susun ulang.');
+  }
+}
+function quizNext(){
+  if(L.qi<L.lv.qs.length-1){L.qi++;renderQ();return;}
+  const st=L.mist===0?3:L.mist<=2?2:1;
+  S.stars[L.lv.id]=Math.max(S.stars[L.lv.id]||0,st);save();
+  sfx.win();confetti();
+  showResult(st,L.mist===0?'Semua jawaban benar pada percobaan pertama.':`Kamu salah ${L.mist} kali sebelum benar. Terus berlatih!`);
+}
+function showResult(st,detail){
+  const idx=LEVELS.indexOf(L.lv),next=LEVELS[idx+1],w=L.w;
+  modal(`<div class="sheet result" role="dialog" aria-modal="true">
+    <div class="rstars">${[1,2,3].map(i=>`<svg class="rs ${i<=st?'on':''}" style="--d:${i*.22}s"><use href="#i-star"/></svg>`).join('')}</div>
+    <h2>${st===3?'Luar biasa!':'Level selesai!'}</h2><p class="def">${detail}</p>
+    <div class="learn"><b>${w.name}:</b> ${L.lv.learn||w.learn}</div>
+    <div class="btnrow"><button class="btn" data-act="again">Ulangi</button><button class="btn" data-act="map">Peta</button>
+    ${next?'<button class="btn primary" data-act="next">Lanjut</button>':'<button class="btn primary" data-act="cert">Lihat Sertifikat</button>'}</div></div>`);
+}
+
+/* ---------- event ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target;
+  const a=t.closest('[data-act]');
+  if(a){
+    const act=a.dataset.act;
+    if(act==='close')closeModal();
+    else if(act==='again'){const id=L.lv.id;closeModal();openLevel(id);}
+    else if(act==='map'){closeModal();leaveLevel();}
+    else if(act==='next'){const n=LEVELS[LEVELS.indexOf(L.lv)+1];closeModal();openLevel(n.id);}
+    else if(act==='cert'){closeModal();showCert();}
+    else if(act==='del')delBlock(+a.dataset.id);
+    else if(act==='inc')stepRep(+a.dataset.id,1);
+    else if(act==='dec')stepRep(+a.dataset.id,-1);
+    return;
+  }
+  if(t===$('#ov')){closeModal();return;}
+  const add=t.closest('[data-add]');if(add){addBlock(add.dataset.add);return;}
+  const slot=t.closest('.slot');
+  if(slot&&L&&L.lv.kind==='run'&&!L.running){const l=findList(slot.dataset.list);if(l){L.active=l;renderLanes();}return;}
+  const gg=t.closest('[data-go]');if(gg){go(gg.dataset.go);return;}
+  const node=t.closest('[data-lv]');if(node&&!node.disabled){unlockAudio();sfx.click();openLevel(node.dataset.lv);return;}
+  const info=t.closest('[data-intro]');if(info){showIntro(+info.dataset.intro);return;}
+  if(t.closest('#stage'))stageClick(e);
+  if(t.closest('#qCheck'))quizCheck();
+  if(t.closest('#qNext'))quizNext();
+  if(t.closest('#runBtn'))runProgram();
+  if(t.closest('#resetBtn'))resetRun();
+  if(t.closest('#clearBtn'))clearProg();
+  const ab=t.closest('#absBtn');
+  if(ab){L.abs=!L.abs;$('#board').classList.toggle('abs',L.abs);ab.setAttribute('aria-pressed',L.abs);ab.textContent='Mode Abstrak: '+(L.abs?'Hidup':'Mati');
+    if(L.abs)setStatus('Hanya hal penting yang terlihat: jalan, penghalang, dan tujuan.','ok');sfx.click();}
+  const sp=t.closest('#spdBtn');
+  if(sp){L.speed=L.speed===1?2:1;sp.textContent='Kecepatan '+L.speed+'x';sp.setAttribute('aria-pressed',L.speed===2);}
+});
+$('#play').onclick=()=>{unlockAudio();sfx.click();go('map');};
+$('#how').onclick=showHow;
+$('#mapHome').onclick=()=>go('home');
+$('#certBtn').onclick=showCert;
+$('#back').onclick=leaveLevel;
+$('#hintBtn').onclick=()=>{if(!L)return;toast(L.lv.hint||'Baca misi dengan teliti, lalu pecah jadi langkah kecil.',6500);};
+$('#nameIn').addEventListener('input',e=>{S.name=e.target.value;save();});
+function snd(){const b=$('#sndBtn');b.textContent='Suara: '+(S.sound?'Hidup':'Mati');b.setAttribute('aria-pressed',S.sound);}
+$('#sndBtn').onclick=()=>{S.sound=!S.sound;save();snd();if(S.sound){unlockAudio();sfx.click();}};
+addEventListener('resize',fit);
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('#ov').hidden){closeModal();return;}
+  if(!L||L.lv.kind!=='run'||!$('#ov').hidden||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
+  const m={ArrowUp:'F',ArrowLeft:'L',ArrowRight:'R'}[e.key];
+  if(m){e.preventDefault();addBlock(m);}
+  else if(e.key==='Enter'&&document.activeElement.tagName!=='BUTTON'){e.preventDefault();runProgram();}
+  else if(e.key==='Backspace'){e.preventDefault();const l=L.active;if(l.length)delBlock(l[l.length-1].id);}
+});
+
+load();snd();renderHome();go('home');
+})();
+</script>
+
+</body></html>
